@@ -29,6 +29,9 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            api(libs.koin.android)
+            api(libs.koin.androidx.compose)
+            api(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -39,9 +42,18 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            api(libs.koin.core)
+            api(libs.ktor.client.core)
+
+            api(libs.ktor.client.content.negotiation)
+            api(libs.ktor.serialization.kotlinx.json)
+            api(libs.ktor.client.logging)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+        }
+        iosMain.dependencies {
+            api(libs.ktor.client.darwin)
         }
     }
 }
@@ -52,7 +64,13 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+    }
+
+    testOptions {
+        targetSdk = 34
+    }
+    lint {
+        targetSdk = 34
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

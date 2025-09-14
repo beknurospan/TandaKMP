@@ -4,8 +4,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -27,27 +28,32 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
             api(libs.koin.android)
             api(libs.koin.androidx.compose)
             api(libs.ktor.client.okhttp)
+            api(libs.androidx.room.sqlite.wrapper)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            api(libs.kotlinx.serialization.json)
+
             api(libs.koin.core)
             api(libs.ktor.client.core)
 
             api(libs.ktor.client.content.negotiation)
             api(libs.ktor.serialization.kotlinx.json)
             api(libs.ktor.client.logging)
+
+
+            api(libs.androidx.room.runtime)
+            api(libs.androidx.sqlite.bundled)
+
+
+            api(libs.androidx.datastore)
+            api(libs.androidx.datastore.preferences)
+
+
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -77,7 +83,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-
+room {
+    schemaDirectory("$projectDir/schemas")
+}
 dependencies {
-    debugImplementation(compose.uiTooling)
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+
 }

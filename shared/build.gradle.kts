@@ -64,6 +64,7 @@ kotlin {
     }
 }
 
+
 android {
     namespace = "com.beknur.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()

@@ -5,8 +5,10 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
+
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlin.serialization)
+    id("kotlin-parcelize")
 
 }
 
@@ -51,8 +53,16 @@ kotlin {
 
             implementation(libs.decompose)
             implementation(libs.decompose.ext)
-
             implementation(libs.kotlinx.serialization.json)
+
+
+            implementation(libs.mvikotlin)
+            implementation(libs.mvikotlin.main)
+            implementation(libs.mvikotlin.coroutines)
+            implementation(libs.mvikotlin.logging)
+            implementation(libs.mvikotlin.timetravel)
+
+
 
             implementation(project(":shared"))
         }
@@ -93,4 +103,7 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-
+repositories {
+    google()
+    mavenCentral()
+}

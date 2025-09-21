@@ -1,0 +1,7 @@
+<resources>
+    <string name="home">Главная</string>
+    <string name="catalog">Каталог</string>
+    <string name="cart">Корзина</string>
+    <string name="favorites">избранное</string>
+    <string name="profile">профиль</string>
+</resources>

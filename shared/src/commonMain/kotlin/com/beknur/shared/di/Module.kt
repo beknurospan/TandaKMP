@@ -5,12 +5,13 @@ import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-fun initKoin(config: KoinAppDeclaration? = null, platformModule: Module) =
+fun initKoin(config: KoinAppDeclaration? = null, platformModule: Module, commonModule: Module) =
 	startKoin {
 		config?.invoke(this)
 		modules(
 			sharedModule,
 			platformModule,
+			commonModule
 		)
 	}
 
@@ -18,4 +19,3 @@ fun initKoin(config: KoinAppDeclaration? = null, platformModule: Module) =
 val sharedModule = module {
 
 }
-expect val platformModule: Module

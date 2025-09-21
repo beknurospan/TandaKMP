@@ -29,7 +29,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun SausaqApp(component: RootComponent) {
 	val state by component.model.collectAsState()
 
-
 	logger("state ${state.isBottomBarVisible}")
 	val bottomBarItems = BottomBarItem.getItems()
 	Scaffold(

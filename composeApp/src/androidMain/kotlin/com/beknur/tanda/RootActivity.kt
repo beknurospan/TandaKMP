@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.defaultComponentContext
-import com.beknur.tanda.navigation.DefaultRootComponent
+import com.beknur.tanda.navigation.root.DefaultRootComponent
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 

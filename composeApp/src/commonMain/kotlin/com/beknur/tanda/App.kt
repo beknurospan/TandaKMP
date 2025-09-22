@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.beknur.tanda.navigation.BottomBarItem
-import com.beknur.tanda.navigation.RootComponent
-import com.beknur.tanda.navigation.RootContent
+import com.beknur.tanda.navigation.root.RootComponent
+import com.beknur.tanda.navigation.root.RootContent
 import com.beknur.tanda.platform.logger
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -76,6 +76,7 @@ fun SausaqApp(component: RootComponent) {
 				.fillMaxSize()
 				.padding(innerPadding)
 		) {
+
 			RootContent(component)
 		}
 	}

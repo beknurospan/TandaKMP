@@ -8,18 +8,20 @@ import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.beknur.tanda.navigation.AppTab
 import com.beknur.tanda.navigation.root.RootStore.Intent
 import com.beknur.tanda.navigation.root.RootStore.Label
+import com.beknur.tanda.navigation.root.RootStore.Label.*
 import com.beknur.tanda.navigation.root.RootStore.State
+import com.beknur.tanda.navigation.root.RootStoreFactory.Msg.*
 import kotlinx.coroutines.launch
 
 interface RootStore : Store<Intent, State, Label> {
 
     sealed interface Intent {
         data class OnClickTab(val bottomNavItem: AppTab) : Intent
+        data object OnLoginSuccess : Intent
     }
 
     data class State(
         val isAuthorized: Boolean = false,
-        val isAuthChecked: Boolean = false,
         val user: String?=null,
 		val isBottomBarVisible: Boolean = false,
         val selectedTab: AppTab = AppTab.Catalog
@@ -27,6 +29,8 @@ interface RootStore : Store<Intent, State, Label> {
 
     sealed interface Label {
         data class ClickTab(val bottomNavItem: AppTab) : Label
+        data object Authorized : Label
+        data object AuthFailed : Label
     }
 }
 
@@ -50,13 +54,12 @@ class RootStoreFactory(
     private sealed interface Msg {
         data class TabChanged(val bottomNavItem: AppTab) : Msg
         data class Authorized(val user: String) : Msg
-        data object AuthChecked : Msg
     }
 
     private class BootstrapperImpl : CoroutineBootstrapper<Action>() {
         override fun invoke() {
             scope.launch {
-                val token = "dsgsg" //authRep.isAuth()
+                val token = null //authRep.isAuth()
                 dispatch(Action.CheckAuth(token))
             }
         }
@@ -67,9 +70,14 @@ class RootStoreFactory(
             when(intent){
 
 
-	            is RootStore.Intent.OnClickTab -> {
-                    dispatch(Msg.TabChanged(intent.bottomNavItem))
-                    publish(RootStore.Label.ClickTab(intent.bottomNavItem))
+	            is Intent.OnClickTab -> {
+                    dispatch(TabChanged(intent.bottomNavItem))
+                    publish(ClickTab(intent.bottomNavItem))
+                }
+
+	            Intent.OnLoginSuccess -> {
+                    dispatch(Msg.Authorized("Beknur"))
+                    publish(RootStore.Label.Authorized)
                 }
             }
         }
@@ -79,8 +87,9 @@ class RootStoreFactory(
                 is Action.CheckAuth -> {
                     if (action.token != null) {
                         dispatch(Msg.Authorized(("Beknur")))
+                        publish(RootStore.Label.Authorized)
                     }else{
-                        dispatch(Msg.AuthChecked)
+                        publish(RootStore.Label.AuthFailed)
                     }
                 }
             }
@@ -95,13 +104,9 @@ class RootStoreFactory(
                 }
 
                 is Msg.Authorized -> {
-                    copy(isAuthorized = true,  isAuthChecked = true, user = msg.user,isBottomBarVisible=true)
+                    copy(isAuthorized = true, user = msg.user,isBottomBarVisible=true)
                 }
 
-	            Msg.AuthChecked -> {
-                    copy(isAuthorized = false,isAuthChecked = true)
-
-                }
             }
         }
     }

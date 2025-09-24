@@ -1,5 +1,6 @@
 package com.beknur.tanda.navigation.root
 
+import com.arkivanov.decompose.router.pages.ChildPages
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.value.Value
 import com.beknur.tanda.feature.auth.AuthComponent
@@ -33,4 +34,5 @@ interface RootComponent {
 	}
 
 	fun onClickTab(bottomNavItem: AppTab)
+
 }

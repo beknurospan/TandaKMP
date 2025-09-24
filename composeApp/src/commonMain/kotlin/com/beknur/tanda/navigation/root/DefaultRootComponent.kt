@@ -6,8 +6,11 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.bringToFront
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.pop
+import com.arkivanov.decompose.router.stack.popWhile
 import com.arkivanov.decompose.router.stack.replaceAll
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackCallback
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.arkivanov.mvikotlin.extensions.coroutines.stateFlow
@@ -21,8 +24,6 @@ import com.beknur.tanda.feature.profile.DefaultProfileComponent
 import com.beknur.tanda.navigation.AppTab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.koin.core.KoinApplication.Companion.init
@@ -56,42 +57,71 @@ class DefaultRootComponent(
 		childFactory = ::child
 	)
 
+
+	private fun Config.isTopLevel(): Boolean = when (this) {
+		Config.Home,
+		Config.Catalog,
+		Config.Cart,
+		Config.Favorites,
+		Config.Profile -> true
+		else -> false
+	}
+
+	val backCallback= BackCallback {
+		val active = stack.value.active.configuration as Config
+
+
+	}
+
+
+
 	init {
+
+		backHandler.register(backCallback)
+
 		scope.launch {
-
-
-			store.stateFlow.collect { state ->
-				if (!state.isAuthChecked) {
-					navigation.replaceAll(Config.Favorites)
-
-				} else if (state.isAuthorized) {
-					navigation.replaceAll(Config.Catalog)
-				} else {
-					navigation.replaceAll(Config.Auth)
-				}
-			}
 			store.labels.collect{
 				when(it){
 					is RootStore.Label.ClickTab -> {
 						val tabConfig=it.bottomNavItem.toConfig()
 						navigation.bringToFront(tabConfig)
 					}
+
+					RootStore.Label.AuthFailed -> {
+						navigation.replaceAll(Config.Auth)
+					}
+					RootStore.Label.Authorized -> {
+						navigation.replaceAll(Config.Catalog)
+					}
 				}
 			}
 		}
 	}
+
 	override fun onClickTab(bottomNavItem: AppTab) {
 		store.accept(RootStore.Intent.OnClickTab(bottomNavItem))
 	}
+
+
+
+	fun onLoginSuccess() {
+		store.accept(RootStore.Intent.OnLoginSuccess)
+	}
+
+
 
 	private fun child(
 		config: Config, componentContext: ComponentContext
 	): RootComponent.Child {
 		return when (config) {
 			Config.Auth -> {
-				val component = authComponentFactory.create(componentContext)
+				val component = authComponentFactory.create(
+					componentContext,
+					onLoginSuccess =::onLoginSuccess
+				)
 				RootComponent.Child.Auth(component)
 			}
+
 			Config.Home -> {
 				val component = homeComponentFactory.create(componentContext)
 				RootComponent.Child.Home(component)
@@ -101,14 +131,17 @@ class DefaultRootComponent(
 				val component = cartComponentFactory.create(componentContext)
 				RootComponent.Child.Cart(component)
 			}
+
 			Config.Catalog -> {
 				val component = catalogComponentFactory.create(componentContext)
 				RootComponent.Child.Catalog(component)
 			}
+
 			Config.Favorites -> {
 				val component = favoritesComponentFactory.create(componentContext)
 				RootComponent.Child.Favorites(component)
 			}
+
 			Config.Profile -> {
 				val component = profileComponentFactory.create(componentContext)
 				RootComponent.Child.Profile(component)
@@ -118,13 +151,13 @@ class DefaultRootComponent(
 
 
 	@Serializable
-	sealed interface Config  {
+	sealed interface Config {
 
 		@Serializable
 		data object Auth : Config
 
 		@Serializable
-		data object Home: Config
+		data object Home : Config
 
 		@Serializable
 		data object Catalog : Config
@@ -140,7 +173,7 @@ class DefaultRootComponent(
 
 	}
 
-	class Factory (
+	class Factory(
 		private val authComponentFactory: DefaultAuthComponent.Factory,
 		private val homeComponentFactory: DefaultHomeComponent.Factory,
 		private val rootStoreFactory: RootStoreFactory,
@@ -150,23 +183,23 @@ class DefaultRootComponent(
 		private val favoritesComponentFactory: DefaultFavoritesComponent.Factory
 
 
-	){
+	) {
 		fun create(
 			componentContext: ComponentContext
-		)=DefaultRootComponent(
-				context = componentContext,
-				authComponentFactory = authComponentFactory,
-				rootStoreFactory = rootStoreFactory,
-				homeComponentFactory = homeComponentFactory,
-				cartComponentFactory = cartComponentFactory,
-				profileComponentFactory = profileComponentFactory,
-				catalogComponentFactory = catalogComponentFactory,
-				favoritesComponentFactory = favoritesComponentFactory
-			)
+		) = DefaultRootComponent(
+			context = componentContext,
+			authComponentFactory = authComponentFactory,
+			rootStoreFactory = rootStoreFactory,
+			homeComponentFactory = homeComponentFactory,
+			cartComponentFactory = cartComponentFactory,
+			profileComponentFactory = profileComponentFactory,
+			catalogComponentFactory = catalogComponentFactory,
+			favoritesComponentFactory = favoritesComponentFactory
+		)
 
 	}
 
-	private fun AppTab.toConfig(): Config = when(this){
+	private fun AppTab.toConfig(): Config = when (this) {
 		AppTab.Home -> Config.Home
 		AppTab.Cart -> Config.Cart
 		AppTab.Catalog -> Config.Catalog

@@ -2,6 +2,7 @@ package com.beknur.tanda.common_di
 
 import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.main.store.DefaultStoreFactory
+import com.beknur.tanda.feature.auth.AuthStoreFactory
 import com.beknur.tanda.feature.auth.DefaultAuthComponent
 import com.beknur.tanda.feature.cart.DefaultCartComponent
 import com.beknur.tanda.feature.catalog.DefaultCatalogComponent
@@ -16,7 +17,8 @@ val commonModule = module {
 
 	single<StoreFactory> { DefaultStoreFactory() }
 	single<RootStoreFactory> { RootStoreFactory(get()) }
-	single<DefaultAuthComponent.Factory> { DefaultAuthComponent.Factory() }
+	single<AuthStoreFactory> { AuthStoreFactory(get()) }
+	single<DefaultAuthComponent.Factory> { DefaultAuthComponent.Factory(get()) }
 	single<DefaultHomeComponent.Factory> { DefaultHomeComponent.Factory() }
 	single<DefaultCartComponent.Factory> { DefaultCartComponent.Factory() }
 	single<DefaultCatalogComponent.Factory> { DefaultCatalogComponent.Factory() }

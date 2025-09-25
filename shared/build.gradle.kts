@@ -30,7 +30,8 @@ kotlin {
         androidMain.dependencies {
             api(libs.koin.android)
             api(libs.koin.androidx.compose)
-            api(libs.ktor.client.okhttp)
+            api(libs.ktor.client.cio)
+
             api(libs.androidx.room.sqlite.wrapper)
         }
         commonMain.dependencies {

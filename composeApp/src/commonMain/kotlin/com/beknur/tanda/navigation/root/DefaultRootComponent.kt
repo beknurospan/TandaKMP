@@ -22,7 +22,6 @@ import com.beknur.tanda.feature.favorites.DefaultFavoritesComponent
 import com.beknur.tanda.feature.home.DefaultHomeComponent
 import com.beknur.tanda.feature.profile.DefaultProfileComponent
 import com.beknur.tanda.navigation.AppTab
-import com.beknur.tanda.platform.AppCloser
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -39,8 +38,7 @@ class DefaultRootComponent(
 	private val profileComponentFactory: DefaultProfileComponent.Factory,
 	private val catalogComponentFactory: DefaultCatalogComponent.Factory,
 	private val favoritesComponentFactory: DefaultFavoritesComponent.Factory,
-	private val rootStoreFactory: RootStoreFactory,
-	private val appCloser: AppCloser
+	private val rootStoreFactory: RootStoreFactory
 ) : RootComponent, ComponentContext by context {
 
 	private val store = instanceKeeper.getStore { rootStoreFactory.create() }
@@ -72,7 +70,8 @@ class DefaultRootComponent(
 	val backCallback= BackCallback {
 		val active = stack.value.active.configuration as Config
 		if(active.isTopLevel()){
-			appCloser.closeApp()
+			store.accept(RootStore.Intent.OnTopLevelClickBack)
+			navigation.bringToFront(Config.Catalog)
 		}
 	}
 
@@ -183,9 +182,7 @@ class DefaultRootComponent(
 		private val cartComponentFactory: DefaultCartComponent.Factory,
 		private val profileComponentFactory: DefaultProfileComponent.Factory,
 		private val catalogComponentFactory: DefaultCatalogComponent.Factory,
-		private val favoritesComponentFactory: DefaultFavoritesComponent.Factory,
-		private val appCloser: AppCloser
-
+		private val favoritesComponentFactory: DefaultFavoritesComponent.Factory
 	) {
 		fun create(
 			componentContext: ComponentContext
@@ -197,8 +194,7 @@ class DefaultRootComponent(
 			cartComponentFactory = cartComponentFactory,
 			profileComponentFactory = profileComponentFactory,
 			catalogComponentFactory = catalogComponentFactory,
-			favoritesComponentFactory = favoritesComponentFactory,
-			appCloser = appCloser
+			favoritesComponentFactory = favoritesComponentFactory
 		)
 
 	}

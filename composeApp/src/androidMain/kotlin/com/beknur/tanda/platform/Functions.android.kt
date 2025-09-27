@@ -1,21 +1,33 @@
+@file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+
 package com.beknur.tanda.platform
 
-import android.app.Activity
-import com.beknur.tanda.platform.ActivityHolder.activity
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.beknur.shared.database.TndDatabase
+import com.beknur.shared.datastore.di.createDataStore
+import com.beknur.shared.datastore.di.dataStoreFileName
+import com.beknur.tanda.TandaApplication
 
-actual interface AppCloser {
-	actual fun closeApp()
+
+actual fun getRoomDatabaseBuilder(): RoomDatabase.Builder<TndDatabase> {
+	val appContext = TandaApplication.appContext
+	val dbFile = appContext.getDatabasePath("tanda_database.db")
+
+	return Room.databaseBuilder<TndDatabase>(
+		context = appContext,
+		name = dbFile.absolutePath,
+	)
 }
 
-class AndroidAppCloser() : AppCloser {
-	override fun closeApp() {
-		val activity = ActivityHolder.activity ?: return
-		activity.runOnUiThread {
-			activity.finishAffinity()
-		}
-	}
+actual fun getDataStorePreferences(): DataStore<Preferences> {
+	val appContext = TandaApplication.appContext
+	return createDataStore(context = appContext)
 }
 
-object ActivityHolder {
-	var activity: Activity? = null
-}
+fun createDataStore(context: Context): DataStore<Preferences> = createDataStore(
+	producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath }
+)

@@ -18,6 +18,7 @@ interface RootStore : Store<Intent, State, Label> {
     sealed interface Intent {
         data class OnClickTab(val bottomNavItem: AppTab) : Intent
         data object OnLoginSuccess : Intent
+        data object OnTopLevelClickBack:Intent
     }
 
     data class State(
@@ -54,6 +55,7 @@ class RootStoreFactory(
     private sealed interface Msg {
         data class TabChanged(val bottomNavItem: AppTab) : Msg
         data class Authorized(val user: String) : Msg
+        data object TopLevelBackClicked: Msg
     }
 
     private class BootstrapperImpl : CoroutineBootstrapper<Action>() {
@@ -77,7 +79,11 @@ class RootStoreFactory(
 
 	            Intent.OnLoginSuccess -> {
                     dispatch(Msg.Authorized("Beknur"))
-                    publish(RootStore.Label.Authorized)
+                    publish(Authorized)
+                }
+
+	            Intent.OnTopLevelClickBack -> {
+                    dispatch(Msg.TopLevelBackClicked)
                 }
             }
         }
@@ -99,7 +105,7 @@ class RootStoreFactory(
     private object ReducerImpl : Reducer<RootStore.State, Msg> {
         override fun RootStore.State.reduce(msg: Msg): RootStore.State {
             return when(msg){
-                is Msg.TabChanged -> {
+                is TabChanged -> {
                     copy(selectedTab = msg.bottomNavItem)
                 }
 
@@ -107,6 +113,9 @@ class RootStoreFactory(
                     copy(isAuthorized = true, user = msg.user,isBottomBarVisible=true)
                 }
 
+	            TopLevelBackClicked -> {
+                    copy(selectedTab = AppTab.Catalog)
+                }
             }
         }
     }

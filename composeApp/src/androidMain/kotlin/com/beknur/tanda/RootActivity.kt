@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.defaultComponentContext
 import com.beknur.tanda.navigation.root.DefaultRootComponent
-import com.beknur.tanda.platform.ActivityHolder
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -22,7 +21,7 @@ class RootActivity : ComponentActivity(), KoinComponent {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            ActivityHolder.activity = this
+
             SausaqApp(root)
         }
     }

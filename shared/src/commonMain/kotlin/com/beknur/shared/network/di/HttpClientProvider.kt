@@ -5,18 +5,24 @@ import com.beknur.shared.network.api.DgisApi
 import com.beknur.shared.network.api.DgisApiImpl
 import com.beknur.shared.network.api.ProductApi
 import com.beknur.shared.network.api.ProductApiImpl
-import com.beknur.shared.platform.createHttpClient
+import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.http.URLProtocol
 import io.ktor.http.encodedPath
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 
 val networkModule = module {
 
+
 	single(named("DgisClient")) {
-		createHttpClient {
+		createHttpClient(engine = get()) {
 			defaultRequest {
 				url {
 					protocol = URLProtocol.HTTPS
@@ -28,7 +34,7 @@ val networkModule = module {
 	}
 
 	single(named("BackendClient")) {
-		createHttpClient {
+		createHttpClient(engine = get()) {
 			defaultRequest {
 				url {
 					protocol = URLProtocol.HTTP
@@ -44,5 +50,20 @@ val networkModule = module {
 	}
 	single<DgisApi> {
 		DgisApiImpl(get(named("DgisClient")))
+	}
+}
+
+fun createHttpClient(engine: HttpClientEngine,configure: HttpClientConfig<*>.() -> Unit): HttpClient {
+	return HttpClient(engine){
+		install(ContentNegotiation) {
+			json(
+				Json {
+					ignoreUnknownKeys = true
+					prettyPrint = true
+					isLenient = true
+				}
+			)
+		}
+		configure()
 	}
 }

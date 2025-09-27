@@ -1,6 +1,8 @@
 package com.beknur.tanda
 
+import android.app.Activity
 import android.app.Application
+import android.content.Context
 import com.beknur.shared.di.initKoin
 import com.beknur.tanda.common_di.commonModule
 import com.beknur.tanda.platform.platformModule
@@ -14,6 +16,12 @@ class TandaApplication : Application() {
 			androidContext(this@TandaApplication)
 		}, platformModule = platformModule,commonModule = commonModule)
 
+		appContext=this@TandaApplication
+
+	}
+	companion object {
+		lateinit var appContext: Context
+			private set
 	}
 }
 
